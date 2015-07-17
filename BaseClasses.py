@@ -88,13 +88,17 @@ class Area():
 
 	# запуск смены состояния
 	def run(self, logfile):
-		f = open(logfile,'a')
+		self.log(logfile)
 		# кормим бактерий
 		self.eat()
 		self.expense()
 		self.go()
 		self.death()
 		self.reproduction()
+
+	# запись результатов в файл
+	def log(self, logfile):
+		f = open(logfile,'a')
 		f.write(str(len(self.list_bacterium) / float(self.size_area) ** 2))
 		f.write('\t')
 		f.write(str(self.mud() / float(self.size_area) ** 2))
@@ -103,7 +107,7 @@ class Area():
 		f.write('\t')
 		f.write(str(self.age()))
 		f.write('\n')
-		
+
 	# питание бактерий
 	def eat(self):
 		for i in self.list_bacterium:
