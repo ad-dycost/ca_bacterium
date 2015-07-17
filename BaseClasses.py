@@ -17,12 +17,13 @@ class Cell():
 
 # Класс, определяющий состояние бактерий
 class Bacterium():
-	def __init__(self, appetite_mean, Time_life, e_bact_0):
-		self.Energy = e_bact_0
-		if Time_life > 0:
-			self.Time_life = randrange(0, Time_life, 1)
+	def __init__(self, appetite_mean, e_bact_0, step, N_life):
+		if step == 0:
+			self.Energy = randrange(0, e_bact_0 * 100, 1) / 100.
+			self.Time_life = randrange(0, N_life, 1)
 		else:
 			self.Time_life = 0
+			self.Energy = e_bact_0
 		self.appetite = gauss(appetite_mean, 0.02)
 
 
@@ -37,15 +38,15 @@ class Area():
 		Если в клетке находится бактерия, то у экземпляра Cell имеется
 		 аттрибут bact, являющийся экземпляром класса Bacterium'''
 
-	def __init__(self, size_area, E_bact_tact, E_bact_step, E_bact_0, E_bact_max, E_bact_eat, E_env_0, E_bact_born, E_tresh_born, N_life, N_lag):
+	def __init__(self, size_area, E_bact_tact, E_bact_step, E_bact_max, E_bact_eat, E_env_0, E_bact_born, E_tresh_born, N_life, N_lag):
 		self.size_area = size_area
 		self.expense_energy_tact = E_bact_tact
 		self.expense_energy_step = E_bact_step
 		self.threshold_energy_limit = E_bact_max
-		self.start_energy_bact = E_bact_0
+		self.threshold_energy_born = E_tresh_born
+		self.start_energy_bact = self.threshold_energy_born / 2
 		self.expense_appetite_mean = E_bact_eat
 		self.expense_energy_born = E_bact_born
-		self.threshold_energy_born = E_tresh_born
 		self.N_life = N_life
 		self.N_lag = N_lag
 		self.list_bacterium = []
@@ -59,7 +60,7 @@ class Area():
 				self.arraycell[i].append([])
 				self.cell = Cell(E_env_0)
 				if self.cell.status == 1:
-					self.cell.bact = Bacterium(self.expense_appetite_mean, self.N_life, self.start_energy_bact)
+					self.cell.bact = Bacterium(self.expense_appetite_mean, self.threshold_energy_limit, 0, self.N_life)
 					self.list_bacterium.append([i,j])
 				del self.cell.arr_for_rand
 				self.arraycell[i][j] = self.cell
@@ -91,8 +92,8 @@ class Area():
 		# кормим бактерий
 		self.eat()
 		self.expense()
-		self.death()
 		self.go()
+		self.death()
 		self.reproduction()
 		f.write(str(len(self.list_bacterium) / float(self.size_area) ** 2))
 		f.write('\t')
@@ -171,7 +172,7 @@ class Area():
 					# добавление новой позиции бактерии
 					self.arraycell[next_coord[0]][next_coord[1]].status = 1
 					self.list_bacterium.append(next_coord)
-					self.arraycell[next_coord[0]][next_coord[1]].bact = Bacterium(self.expense_appetite_mean, 0, self.start_energy_bact)
+					self.arraycell[next_coord[0]][next_coord[1]].bact = Bacterium(self.expense_appetite_mean, self.start_energy_bact, 1, self.N_life)
 					# расход энергии на размножение
 					self.arraycell[i[0]][i[1]].bact.Energy = self.arraycell[i[0]][i[1]].bact.Energy - self.start_energy_bact - self.expense_energy_born
 	
